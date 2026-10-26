@@ -5,6 +5,25 @@ import QRCode from 'qrcode';
 import { getTranslation } from './translations';
 
 /**
+ * Blob ni Base64 ga ishonchli o'girish (Brauzer uchun xavfsiz)
+ */
+function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = reader.result as string;
+      if (result && result.includes(',')) {
+        resolve(result.split(',')[1]);
+      } else {
+        resolve(result || '');
+      }
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+/**
  * Shriftlarni yuklash (Lokal public/fonts yoki CDN zaxira)
  */
 async function loadFontBuffer(fileName: string): Promise<string | null> {
@@ -23,17 +42,13 @@ async function loadFontBuffer(fileName: string): Promise<string | null> {
   // 2. Brauzer muhitida: HTTP fetch orqali yuklash
   try {
     const res = await fetch(`/fonts/${fileName}`);
-    if (res.ok) {
-      const buf = await res.arrayBuffer();
-      const uint8 = new Uint8Array(buf);
-      let binary = '';
-      for (let i = 0; i < uint8.byteLength; i++) {
-        binary += String.fromCharCode(uint8[i]);
-      }
-      return btoa(binary);
+    const contentType = res.headers.get('content-type') || '';
+    if (res.ok && !contentType.includes('text/html')) {
+      const blob = await res.blob();
+      return await blobToBase64(blob);
     }
-  } catch {
-    // CDN zaxirasi
+  } catch (err) {
+    console.warn(`[pdfExport] Lokal shrift yuklanmadi (${fileName}):`, err);
   }
 
   // 3. Zaxira CDN
@@ -42,17 +57,16 @@ async function loadFontBuffer(fileName: string): Promise<string | null> {
       ? 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Medium.ttf'
       : 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Regular.ttf';
     const res = await fetch(cdnUrl);
-    const buf = await res.arrayBuffer();
-    const uint8 = new Uint8Array(buf);
-    let binary = '';
-    for (let i = 0; i < uint8.byteLength; i++) {
-      binary += String.fromCharCode(uint8[i]);
+    const contentType = res.headers.get('content-type') || '';
+    if (res.ok && !contentType.includes('text/html')) {
+      const blob = await res.blob();
+      return await blobToBase64(blob);
     }
-    return btoa(binary);
   } catch (err) {
-    console.warn(`[pdfExport] Shrift yuklashda xatolik (${fileName}):`, err);
-    return null;
+    console.warn(`[pdfExport] CDN shrift yuklanmadi (${fileName}):`, err);
   }
+
+  return null;
 }
 
 /**
@@ -106,7 +120,7 @@ function drawDonutChart(
  * - Har bir varoqda rasmiy skanerlanadigan QR-kod shtampi mavjud
  */
 export const exportToPDF = async (data: any, lang: string = 'uz') => {
-  const doc = new jsPDF({
+  let doc = new jsPDF({
     unit: 'mm',
     format: 'a4',
     orientation: 'portrait',
@@ -135,6 +149,13 @@ export const exportToPDF = async (data: any, lang: string = 'uz') => {
       fontLoaded = true;
     } catch (e) {
       console.warn('[pdfExport] Shrift registratsiyasida xatolik:', e);
+      fontLoaded = false;
+      // Agar xatolik bo'lsa, xotirani tozalash uchun toza yangi doc yaratamiz
+      doc = new jsPDF({
+        unit: 'mm',
+        format: 'a4',
+        orientation: 'portrait',
+      });
     }
   }
 
