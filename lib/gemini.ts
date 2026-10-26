@@ -1,4 +1,6 @@
 // lib/gemini.ts
+import { jsonrepair } from 'jsonrepair';
+
 export const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 export const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-4-argon';
 
@@ -64,10 +66,17 @@ export async function callGeminiStream(data: any, returnText: boolean = false): 
 
         if (json.candidates?.[0]?.content?.parts) {
             for (const part of json.candidates[0].content.parts) {
-                // part.text mavjud bo'lsa qo'shamiz (thoughtSignature bo'lsa ham bo'ladi —
-                // thinking modellarda bir xil partda ham text ham thoughtSignature kelishi mumkin)
-                if (part.text) {
+                // Agar part thought (fikrlash/reasoning) bo'lsa, uni JSON ga qo'shmaymiz
+                if (part.text && !part.thought) {
                     textResponse += part.text;
+                }
+            }
+            // Agar thought filterlangandan keyin bo'sh qolsa (eski format), barcha textlarni olamiz
+            if (!textResponse.trim()) {
+                for (const part of json.candidates[0].content.parts) {
+                    if (part.text) {
+                        textResponse += part.text;
+                    }
                 }
             }
         }
@@ -118,11 +127,24 @@ export async function callGeminiStream(data: any, returnText: boolean = false): 
             cleanJson = cleanJson.substring(startIdx, endIdx + 1);
         }
 
+        // 1. Standart JSON.parse
         try {
             return JSON.parse(cleanJson);
         } catch (e) {
-            console.error("Failed to parse JSON. Raw text:", textResponse.substring(0, 500));
-            try { require('fs').writeFileSync('gemini_error.log', textResponse); } catch(err) {}
-            throw new Error(`Invalid JSON format from AI. Qaytarilgan matn: AI javobi serverga (gemini_error.log) yozildi!`);
+            // 2. jsonrepair orqali tozalash va tiklash (kesilgan yoki tirnoqlar buzilgan bo'lsa)
+            try {
+                const repaired = jsonrepair(cleanJson);
+                return JSON.parse(repaired);
+            } catch (rErr) {
+                // 3. To'liq matn ustida jsonrepair qilib ko'rish
+                try {
+                    const repairedFull = jsonrepair(textResponse);
+                    return JSON.parse(repairedFull);
+                } catch (fullErr) {
+                    console.error("Failed to parse JSON. Raw text:", textResponse.substring(0, 500));
+                    try { require('fs').writeFileSync('gemini_error.log', textResponse); } catch(err) {}
+                    throw new Error(`Invalid JSON format from AI. Qaytarilgan matn: AI javobi serverga (gemini_error.log) yozildi!`);
+                }
+            }
         }
 }

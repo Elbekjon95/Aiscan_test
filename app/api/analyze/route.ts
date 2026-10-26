@@ -423,6 +423,7 @@ Siz ushbu vazifalarni HUJJATNING HAR BIR BANDI bo'yicha bajarishingiz shart:
 ## 3. CHIQISH FORMATI (JSON)
 Javobni FAQAT QUYIDAGI JSON FORMATIDA, istisnosiz ${targetLangName} tilida qaytaring. Javob maksimal darajada batafsil bo'lishi kerak.
 DIQQAT: Javobda "optimized_version", "corrected_version" yoki boshqa hech qanday hujjatning to'liq matnini o'z ichiga olgan qo'shimcha maydonlarni JSONga qo'shmang! Faqatgina "optimized_replacements" maydonini bering. Hujjatning to'liq matnini o'z serverimiz o'zi tiklab oladi. Bu juda muhim, chunki to'liq matnni JSONda qaytarish tokenlar yetishmasligiga va javobning kesilib (truncated) qolishiga olib keladi.
+DIQQAT: Matn qiymatlari (quote, reason, content va hk) ichida qo'shtirnoq (") ishlatmang! Ularning o'rniga faqat «...» yoki bittalik tirnoq (') ishlating (masalan: «Davlat xaridlari to'g'risida»gi qonun). Bu JSON formati buzilmasligi uchun qat'iy talabdir.
 Ushbu cheklovga qat'iy rioya qiling.
 
 {
