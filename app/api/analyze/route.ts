@@ -8,6 +8,8 @@ import { extractTextFromDoc } from '@/lib/docExtract';
 
 const mammoth = require('mammoth');
 
+export const maxDuration = 300; // 5 minutes timeout for AI analysis
+
 /**
  * PDF va DOCX dan olingan matnni BIR XIL formatga keltiradi.
  * Bu funksiya orqali ikki xil formatdan kelgan bir xil kontent

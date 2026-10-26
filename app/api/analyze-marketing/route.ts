@@ -6,6 +6,8 @@ import { extractTextFromDoc } from '@/lib/docExtract';
 
 const mammoth = require('mammoth');
 
+export const maxDuration = 300;
+
 // orginfo.uz dan barcha yuridik ma'lumotlarni (STIR, Manzil, Tel, Email) qidirib topish funksiyasi
 async function fetchOrgDetails(companyName: string) {
     try {
