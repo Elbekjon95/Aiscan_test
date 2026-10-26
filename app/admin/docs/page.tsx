@@ -138,12 +138,12 @@ export default function DocsManagement() {
                             />
                         </div>
                         <div className="input-group">
-                            <label className="form-label">Fayl (PDF yoki DOCX)</label>
+                            <label className="form-label">Fayl (PDF, DOCX yoki DOC)</label>
                             <input 
                                 type="file" 
                                 className="input-field" 
                                 onChange={e => setNewDoc({ ...newDoc, file: e.target.files ? e.target.files[0] : null })}
-                                accept=".pdf,.docx"
+                                accept=".pdf,.docx,.doc"
                                 required 
                                 style={{ padding: '0.6rem' }}
                             />

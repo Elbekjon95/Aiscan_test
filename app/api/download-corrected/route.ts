@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
             // PDF ni to'g'ridan-to'g'ri tahrirlash mumkin emas
             return NextResponse.json({ 
                 success: false, 
-                error: 'Faqat DOCX fayllarni original formatlash bilan tuzatish mumkin. PDF fayllar uchun Word (DOCX) formatida yuklab oling.' 
+                error: 'Faqat DOCX fayllarni original formatlash bilan tuzatish mumkin. PDF va DOC fayllar uchun Word (DOCX) formatida yuklab oling.' 
             }, { status: 400 });
         }
 

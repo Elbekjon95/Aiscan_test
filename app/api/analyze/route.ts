@@ -4,6 +4,7 @@ import { callGeminiStream } from '@/lib/gemini';
 import crypto from 'crypto';
 import { getSession } from '@/lib/auth';
 import { extractTextFromPDF } from '@/lib/pdfExtract';
+import { extractTextFromDoc } from '@/lib/docExtract';
 
 const mammoth = require('mammoth');
 
@@ -92,8 +93,12 @@ export async function POST(req: NextRequest) {
                 ]
             });
             originalHtml = htmlResult.value;
+        } else if (fileExt === 'doc') {
+            const docResult = await extractTextFromDoc(buffer);
+            text = docResult.text;
+            originalHtml = docResult.html;
         } else {
-            return NextResponse.json({ success: false, error: 'Faqat PDF va DOCX fayllari ruxsat etiladi.' }, { status: 400 });
+            return NextResponse.json({ success: false, error: 'Faqat PDF, DOCX va DOC fayllari ruxsat etiladi.' }, { status: 400 });
         }
 
         // 2-BOSQICH: MATN NORMALIZATSIYASI
@@ -249,7 +254,7 @@ ${JSON.stringify(dataToTranslate, null, 2)}
 
         // DOCX uchun HTML formatdagi matn ishlatamiz (jadvallar, ro'yxatlar saqlanadi)
         // PDF uchun oddiy matn qoladi (PDF o'zi inline sifatida to'liq yuboriladi)
-        // Gemini 3.1 Pro 1M token kontekstni qo'llab-quvvatlaydi (~800K belgi)
+        // Gemini 4 Argon 1M token kontekstni qo'llab-quvvatlaydi (~800K belgi)
         // 50-100 varoqli hujjatlarni ham to'liq o'qish uchun chegara kengaytirildi
         // PDF va DOCX uchun DOIM BIR XIL normalizatsiya qilingan matn yuboriladi
         // Bu orqali fayl formatidan qat'i nazar bir xil baho olinadi
@@ -430,6 +435,42 @@ Ushbu cheklovga qat'iy rioya qiling.
         "reason": "Ushbu band nima uchun favoritizm ekanligining mantiqiy va huquqiy asosi (Per-clause assessment)",
         "severity": "medium|high|critical"
      }
+  ],
+  "executive_summary": "1-2 ta abzaslik qisqa xulosa va rasmiy auditorlik xulosasi/hukmi (masalan: 'Представленный проект ТЗ содержит нарушения ст. 11 и ст. 46 Закона РУз...')",
+  "metadata_cards": {
+    "buyer": "Buyurtmachi tashkilot (masalan: AO «Uzbekistan Airports»)",
+    "perimeter": "Xarid va audit perimetri (masalan: 13 yuridik shaxs / 11 ta aeroport)",
+    "scale": "Masshtab, tizim yoki tovarlar xarakteri",
+    "timeline": "Rejalashtirilgan muddat va kafolat talablari"
+  },
+  "sub_scores": {
+    "functional": 85,
+    "transparency": 60,
+    "architecture": 65,
+    "competition": 55
+  },
+  "price_benchmark": {
+    "local_range": "Mahalliy bozor narxlari (masalan: 4,85 - 5,95 mlrd so'm)",
+    "market_range": "Optimal bozor narxi (masalan: 6,25 - 7,70 mlrd so'm)",
+    "estimated_range": "Xatarlar va zatochkalar bilan smeta (masalan: 9,80 - 11,90 mlrd so'm)",
+    "potential_savings": "Potensial tejamkorlik (masalan: 3,0 - 4,5 mlrd so'm)",
+    "items": [
+      {
+        "task": "Ish yoki tovar moddasi",
+        "local_price": "Narx 1",
+        "market_price": "Narx 2",
+        "estimated_price": "Narx 3",
+        "volume_notes": "Parametrlar"
+      }
+    ]
+  },
+  "action_plan": [
+    { "step": 1, "title": "1-qadam sarlavhasi", "description": "Ushbu xatoni bartaraf etish bo'yicha aniq ko'rsatma" },
+    { "step": 2, "title": "2-qadam sarlavhasi", "description": "Aniq ko'rsatma" },
+    { "step": 3, "title": "3-qadam sarlavhasi", "description": "Aniq ko'rsatma" },
+    { "step": 4, "title": "4-qadam sarlavhasi", "description": "Aniq ko'rsatma" },
+    { "step": 5, "title": "5-qadam sarlavhasi", "description": "Aniq ko'rsatma" },
+    { "step": 6, "title": "6-qadam sarlavhasi", "description": "Aniq ko'rsatma" }
   ],
   "identified_brands": [
      { "brand": "Brand", "mentions": 1, "is_direct_mention": true }

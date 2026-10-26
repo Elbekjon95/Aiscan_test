@@ -41,7 +41,7 @@ export default function Affiliation() {
             const selectedFiles = Array.from(e.target.files);
             const valid = selectedFiles.every(f => {
                 const ext = f.name.split('.').pop()?.toLowerCase();
-                return ext === 'pdf' || ext === 'docx';
+                return ext === 'pdf' || ext === 'docx' || ext === 'doc';
             });
             
             if (!valid) {
@@ -64,7 +64,7 @@ export default function Affiliation() {
             
             const valid = selectedFiles.every(f => {
                 const ext = f.name.split('.').pop()?.toLowerCase();
-                return ext === 'pdf' || ext === 'docx';
+                return ext === 'pdf' || ext === 'docx' || ext === 'doc';
             });
             
             if (!valid) {
@@ -128,7 +128,7 @@ export default function Affiliation() {
 
                 {!resultData && (
                     <section className="upload-container" id="drop-zone" onDragOver={(e) => e.preventDefault()} onDrop={handleDrop}>
-                        <input type="file" id="files" accept=".pdf,.docx" multiple style={{ display: 'none' }} onChange={handleFileChange} />
+                        <input type="file" id="files" accept=".pdf,.docx,.doc" multiple style={{ display: 'none' }} onChange={handleFileChange} />
                         {files.length === 0 ? (
                             <div className="upload-box" onClick={() => document.getElementById('files')?.click()} style={{ cursor: 'pointer' }}>
                                 <Network className="upload-icon" size={64} color="var(--error)" />

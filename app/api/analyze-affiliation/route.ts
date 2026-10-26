@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { callGeminiStream } from '@/lib/gemini';
 import { getSession } from '@/lib/auth';
+import { extractTextFromDoc } from '@/lib/docExtract';
 
 const mammoth = require('mammoth');
 
@@ -34,6 +35,9 @@ export async function POST(req: NextRequest) {
                     const rawResult = await mammoth.extractRawText({ buffer });
                     text = rawResult.value;
                 }
+            } else if (fileExt === 'doc') {
+                const docResult = await extractTextFromDoc(buffer);
+                text = docResult.html || docResult.text;
             }
 
             allFilesData.push({
@@ -45,7 +49,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Simulating the 1st step: Extracting companies
-        // We will send directly to big prompt since Gemini 3.1 Pro handles larger contexts well.
+        // We will send directly to big prompt since Gemini 4 Argon handles larger contexts well.
         let documentsContext = "";
         allFilesData.forEach((file, idx) => {
             documentsContext += `DOCUMENT ${idx + 1} (File: ${file.name}):\n${file.text || "[Scanned Image/No Text]"}\n\n`;

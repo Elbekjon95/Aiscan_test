@@ -40,7 +40,7 @@ export default function Marketing() {
         if (e.target.files && e.target.files[0]) {
             const selected = e.target.files[0];
             const ext = selected.name.split('.').pop()?.toLowerCase();
-            if (ext !== 'pdf' && ext !== 'docx') {
+            if (ext !== 'pdf' && ext !== 'docx' && ext !== 'doc') {
                 setError(getTranslation(lang, 'error_format'));
                 return;
             }
@@ -54,7 +54,7 @@ export default function Marketing() {
         if (e.dataTransfer.files && e.dataTransfer.files[0]) {
             const selected = e.dataTransfer.files[0];
             const ext = selected.name.split('.').pop()?.toLowerCase();
-            if (ext !== 'pdf' && ext !== 'docx') {
+            if (ext !== 'pdf' && ext !== 'docx' && ext !== 'doc') {
                 setError(getTranslation(lang, 'error_format'));
                 return;
             }
@@ -110,7 +110,7 @@ export default function Marketing() {
 
                 {!resultData && (
                     <section className="upload-container" id="drop-zone" onDragOver={(e) => e.preventDefault()} onDrop={handleDrop}>
-                        <input type="file" id="file" accept=".pdf,.docx" style={{ display: 'none' }} onChange={handleFileChange} />
+                        <input type="file" id="file" accept=".pdf,.docx,.doc" style={{ display: 'none' }} onChange={handleFileChange} />
                         {!file ? (
                             <div className="upload-box" onClick={() => document.getElementById('file')?.click()} style={{ cursor: 'pointer' }}>
                                 <ShoppingCart className="upload-icon" size={64} color="var(--primary)" />

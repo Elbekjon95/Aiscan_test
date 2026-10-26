@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { callGeminiStream } from '@/lib/gemini';
+import { extractTextFromDoc } from '@/lib/docExtract';
 
 const mammoth = require('mammoth');
 
@@ -70,8 +71,11 @@ export async function POST(req: NextRequest) {
         } else if (fileExt === 'docx') {
             const result = await mammoth.extractRawText({ buffer });
             content = result.value;
+        } else if (fileExt === 'doc') {
+            const docResult = await extractTextFromDoc(buffer);
+            content = docResult.text;
         } else {
-            return NextResponse.json({ success: false, error: 'Faqat PDF va DOCX.' }, { status: 400 });
+            return NextResponse.json({ success: false, error: 'Faqat PDF, DOCX va DOC.' }, { status: 400 });
         }
         
         const isGlobal = session.role === 'super_admin';

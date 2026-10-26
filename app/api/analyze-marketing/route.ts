@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { callGeminiStream } from '@/lib/gemini';
 import { getSession } from '@/lib/auth';
+import { extractTextFromDoc } from '@/lib/docExtract';
 
 const mammoth = require('mammoth');
 
@@ -107,6 +108,11 @@ export async function POST(req: NextRequest) {
                 const rawResult = await mammoth.extractRawText({ buffer });
                 text = rawResult.value;
             }
+        } else if (fileExt === 'doc') {
+            const docResult = await extractTextFromDoc(buffer);
+            text = docResult.html || docResult.text;
+        } else {
+            return NextResponse.json({ success: false, error: 'Faqat PDF, DOCX va DOC fayllari ruxsat etiladi.' }, { status: 400 });
         }
 
         const targetLangName = lang === 'uz' ? "O'zbek tili" : (lang === 'ru' ? "Rus tili" : "Ingliz tili");

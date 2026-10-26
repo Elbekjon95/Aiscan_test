@@ -1,6 +1,6 @@
 // lib/gemini.ts
 export const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-export const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.1-pro-preview';
+export const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-4-argon';
 
 export async function callGeminiStream(data: any, returnText: boolean = false): Promise<any> {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
